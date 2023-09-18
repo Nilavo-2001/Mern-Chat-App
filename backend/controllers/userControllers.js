@@ -5,7 +5,7 @@ const generateToken = require("../utilities/tokenGenerator");
 const bcrypt = require('bcrypt');
 const registerUser = expressAsyncHandler(async (req, res) => {
     const { name, email, password, confirmpassword, pic } = req.body;
-
+    console.log(req.body);
     if (!name || !email || !password || !confirmpassword) {
         throw new Error("Pls Enter all the fields");
         return res.status(400);

@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { ToastContainer, toast } from "react-toastify";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { ToastContainer } from "react-toastify";
+import { sucess, warning } from "../utils/toast";
 import "react-toastify/dist/ReactToastify.css";
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -28,33 +30,84 @@ function Signup() {
     console.log(pics);
     if (pics && (pics.type == "image/jpeg" || pics.type == "image/jpeg")) {
       setPic(pics);
-      toast.success("Image Uploaded Sucessfully", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      sucess("Image Uploaded Sucessfully");
     } else {
       setPic(undefined);
-      toast.warn("Upload Image Only", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      warning("Upload Image Only");
     }
   };
-
+  const uploadDpCloud = async () => {
+    if (pic) {
+      const data = new FormData();
+      data.append("file", pic);
+      data.append("upload_preset", "chat-app");
+      data.append("cloud_name", "dmkgepiyt");
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dmkgepiyt/image/upload",
+        {
+          method: "post",
+          body: data,
+        }
+      );
+      const responseData = await response.json();
+      const url = responseData.url.toString();
+      console.log(url);
+      return url;
+    }
+  };
   const submitHandler = async () => {
-    //to be completed
+    setLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      warning("Fill all the fields");
+      setLoading(false);
+      return;
+    }
+    if (password != confirmPassword) {
+      warning("Password and Confirm Password does not match");
+      setLoading(false);
+      return;
+    }
+    //to upload image and generate link;
+    const picLink = await uploadDpCloud();
+    //done uploading
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    if (picLink) {
+      var raw = JSON.stringify({
+        name,
+        email,
+        password,
+        confirmpassword: confirmPassword,
+        pic: picLink,
+      });
+    } else {
+      var raw = JSON.stringify({
+        name,
+        email,
+        password,
+        confirmpassword: confirmPassword,
+      });
+    }
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    const response = await fetch(
+      "http://localhost:5000/api/user",
+      requestOptions
+    );
+    if (response.status == 200) {
+      setLoading(false);
+      sucess("Registration Sucessful");
+    }
+    const userData = await response.json();
+    console.log(userData);
+    localStorage.setItem("userInfo", JSON.stringify(userData));
   };
 
   return (
@@ -121,13 +174,14 @@ function Signup() {
           />
         </Button>
 
-        <Button
+        <LoadingButton
+          loading={loading}
           variant="contained"
           sx={{ backgroundColor: "#3182ce" }}
           onClick={submitHandler}
         >
           Signup
-        </Button>
+        </LoadingButton>
       </Box>
       <ToastContainer />
     </>
