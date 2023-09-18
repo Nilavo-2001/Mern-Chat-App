@@ -5,7 +5,8 @@ import { styled } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { ToastContainer } from "react-toastify";
-import { sucess, warning } from "../utils/toast";
+import { sucess, warning, error as errorToast } from "../utils/toast";
+import { encObj } from "../utils/encrypt";
 import "react-toastify/dist/ReactToastify.css";
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -56,58 +57,63 @@ function Signup() {
     }
   };
   const submitHandler = async () => {
-    setLoading(true);
-    if (!name || !email || !password || !confirmPassword) {
-      warning("Fill all the fields");
-      setLoading(false);
-      return;
-    }
-    if (password != confirmPassword) {
-      warning("Password and Confirm Password does not match");
-      setLoading(false);
-      return;
-    }
-    //to upload image and generate link;
-    const picLink = await uploadDpCloud();
-    //done uploading
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+    try {
+      setLoading(true);
+      if (!name || !email || !password || !confirmPassword) {
+        warning("Fill all the fields");
+        setLoading(false);
+        return;
+      }
+      if (password != confirmPassword) {
+        warning("Password and Confirm Password does not match");
+        setLoading(false);
+        return;
+      }
+      //to upload image and generate link;
+      const picLink = await uploadDpCloud();
+      //done uploading
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
 
-    if (picLink) {
-      var raw = JSON.stringify({
-        name,
-        email,
-        password,
-        confirmpassword: confirmPassword,
-        pic: picLink,
-      });
-    } else {
-      var raw = JSON.stringify({
-        name,
-        email,
-        password,
-        confirmpassword: confirmPassword,
-      });
-    }
+      if (picLink) {
+        var raw = JSON.stringify({
+          name,
+          email,
+          password,
+          confirmpassword: confirmPassword,
+          pic: picLink,
+        });
+      } else {
+        var raw = JSON.stringify({
+          name,
+          email,
+          password,
+          confirmpassword: confirmPassword,
+        });
+      }
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
 
-    const response = await fetch(
-      "http://localhost:5000/api/user",
-      requestOptions
-    );
-    if (response.status == 200) {
+      const response = await fetch(
+        "http://localhost:5000/api/user",
+        requestOptions
+      );
+      if (response.status == 200) {
+        setLoading(false);
+        sucess("Registration Sucessful");
+      }
+      const userData = await response.json();
+      console.log(userData);
+      localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
+    } catch (error) {
+      errorToast("Failed to Register");
       setLoading(false);
-      sucess("Registration Sucessful");
     }
-    const userData = await response.json();
-    console.log(userData);
-    localStorage.setItem("userInfo", JSON.stringify(userData));
   };
 
   return (
