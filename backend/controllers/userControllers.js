@@ -3,6 +3,7 @@ const User = require("../models/User");
 const { use } = require("../routes/user");
 const generateToken = require("../utilities/tokenGenerator");
 const bcrypt = require('bcrypt');
+//const Chat = require("../models/Chat");
 const registerUser = expressAsyncHandler(async (req, res) => {
     const { name, email, password, confirmpassword, pic } = req.body;
     console.log(req.body);
@@ -63,5 +64,22 @@ const loginUser = expressAsyncHandler(
     }
 )
 
+const searchUsers = expressAsyncHandler(async (req, res) => {
+    const userInfo = req.query.search;
+    const id = req.user._id;
+    /* return all users whose name or email has userInfo as a substring , 
+     except for the current user , also make sure to remove password
+    */
+    const users = await User.find({
+        $and: [
+            { name: { $regex: userInfo, $options: 'i' } },
+            { _id: { $ne: id } }
+        ]
+    }).select("-password");
+    res.status(200).send(users);
+})
 
-module.exports = { registerUser, loginUser };
+
+
+
+module.exports = { registerUser, loginUser, searchUsers };

@@ -1,5 +1,6 @@
 import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import { sucess, warning, error as errorToast } from "../utils/toast";
@@ -9,6 +10,7 @@ function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const loginUser = async (Email = email, Password = password) => {
     try {
@@ -29,7 +31,7 @@ function Login() {
       };
 
       const response = await fetch(
-        "http://localhost:5000/api/user/login",
+        "http://localhost:5000/api/user/auth/login",
         requestOptions
       );
       const userData = await response.json();
@@ -41,6 +43,7 @@ function Login() {
       }
       console.log(userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
+      navigate("/chats");
     } catch (error) {
       errorToast("Failed to Login");
       setLoading(false);

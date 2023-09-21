@@ -2,6 +2,7 @@ import { Box, Button, Input } from "@mui/material";
 import React, { useState } from "react";
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { ToastContainer } from "react-toastify";
@@ -26,6 +27,7 @@ function Signup() {
   const [password, setPassword] = useState();
   const [confirmPassword, setconfirmPassword] = useState();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const uploadDp = (pics) => {
     console.log(pics);
@@ -100,7 +102,7 @@ function Signup() {
       };
 
       const response = await fetch(
-        "http://localhost:5000/api/user",
+        "http://localhost:5000/api/user/auth/register",
         requestOptions
       );
       if (response.status == 200) {
@@ -110,6 +112,7 @@ function Signup() {
       const userData = await response.json();
       console.log(userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
+      navigate("/chats");
     } catch (error) {
       errorToast("Failed to Register");
       setLoading(false);
