@@ -1,17 +1,18 @@
 import { Box, Button } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import { sucess, warning, error as errorToast } from "../utils/toast";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { encObj } from "../utils/encrypt";
+import { chatContext } from "../context/chatProvider";
 function Login() {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const { user, setUser } = useContext(chatContext);
   const loginUser = async (Email = email, Password = password) => {
     try {
       setLoading(true);
@@ -37,12 +38,13 @@ function Login() {
       const userData = await response.json();
       if (response.status == 200) {
         setLoading(false);
-        sucess("Login Sucessful");
       } else {
         warning(userData);
       }
       console.log(userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
+      setUser(userData);
+      sucess("Login Sucessful");
       navigate("/chats");
     } catch (error) {
       errorToast("Failed to Login");

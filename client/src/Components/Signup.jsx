@@ -1,5 +1,5 @@
 import { Box, Button, Input } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { ToastContainer } from "react-toastify";
 import { sucess, warning, error as errorToast } from "../utils/toast";
 import { encObj } from "../utils/encrypt";
-import "react-toastify/dist/ReactToastify.css";
+import { chatContext } from "../context/chatProvider";
+//import { ChatState } from "../context/chatProvider";
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -28,6 +29,7 @@ function Signup() {
   const [confirmPassword, setconfirmPassword] = useState();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, setUser } = useContext(chatContext);
 
   const uploadDp = (pics) => {
     console.log(pics);
@@ -112,6 +114,7 @@ function Signup() {
       const userData = await response.json();
       console.log(userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
+      setUser(userData);
       navigate("/chats");
     } catch (error) {
       errorToast("Failed to Register");
@@ -192,7 +195,6 @@ function Signup() {
           Signup
         </LoadingButton>
       </Box>
-      <ToastContainer />
     </>
   );
 }
