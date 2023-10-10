@@ -75,7 +75,7 @@ const searchUsers = expressAsyncHandler(async (req, res) => {
             { name: { $regex: userInfo, $options: 'i' } },
             { _id: { $ne: id } }
         ]
-    }).select("-password");
+    }).limit(10).select("-password");
     res.status(200).send(users);
 })
 

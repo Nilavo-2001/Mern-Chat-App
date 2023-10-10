@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Drawer from "@mui/material/Drawer";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -9,31 +9,53 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { Tooltip, Typography } from "@mui/material";
+import { Tooltip, Typography, Skeleton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { error as errorToast } from "../utils/toast";
+import { chatContext } from "../context/chatProvider";
 
 export default function ChatDrawer() {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-
+  const [searchResult, setSearchResult] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { user } = useContext(chatContext);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const handleSearch = async () => {
+    // Clear previous search results
+    setSearchResult([]);
 
-  const handleSearch = () => {
-    // Implement your search logic here and update searchResults accordingly
-    // For this example, we'll use dummy search results with avatars.
-    const dummyResults = [
-      { name: "User 1", avatar: "U1" },
-      { name: "User 2", avatar: "U2" },
-      { name: "User 3", avatar: "U3" },
-      { name: "User 4", avatar: "U4" },
-      { name: "John Doe", avatar: "JD" },
-      { name: "Jane Smith", avatar: "JS" },
-    ];
+    if (searchQuery === "") {
+      errorToast("No Username Provided");
+      return;
+    }
+    try {
+      setLoading(true);
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
 
-    setSearchResults(dummyResults);
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+      };
+
+      const response = await fetch(
+        `http://localhost:5000/api/user/search?search=${searchQuery}`,
+        requestOptions
+      );
+      const result = await response.json();
+      if (result.length != 0) {
+        setSearchResult(result);
+      } else {
+        setSearchResult([{ name: "No User Found" }]);
+      }
+      setLoading(false);
+    } catch (error) {
+      errorToast("Error Occurred");
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,18 +93,37 @@ export default function ChatDrawer() {
               Go
             </Button>
           </div>
-          <List style={{ marginTop: "16px" }}>
-            {searchResults.map((result, index) => (
-              <ListItem
-                key={index}
-                sx={{ backgroundColor: index % 2 === 0 ? "#F0F0F0" : "white" }}
-              >
-                <ListItemAvatar>
-                  <Avatar>{result.avatar}</Avatar>
-                </ListItemAvatar>
-                <ListItemText primary={result.name} />
-              </ListItem>
-            ))}
+          <List sx={{ marginTop: "16px" }}>
+            {loading
+              ? Array.from({ length: 10 }, (_, index) => (
+                  <ListItem key={index}>
+                    <ListItemAvatar>
+                      <Skeleton variant="circular" width={40} height={40} />
+                    </ListItemAvatar>
+                    <ListItemText>
+                      <Skeleton width={150} />
+                    </ListItemText>
+                  </ListItem>
+                ))
+              : searchResult.map((result, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      cursor: "pointer",
+                      bgcolor: "lightgrey",
+                      ":hover": { bgcolor: "grey" },
+                      marginBottom: "5px",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    {result.pic && (
+                      <ListItemAvatar>
+                        <Avatar src={result.pic} />
+                      </ListItemAvatar>
+                    )}
+                    <ListItemText primary={result.name} />
+                  </ListItem>
+                ))}
           </List>
           <IconButton
             color="primary"

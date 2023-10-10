@@ -28,7 +28,7 @@ const sucess = (message) => {
 
 const error = (message) => {
     toast.error(message, {
-        position: "top-right",
+        position: "top-center",
         autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
