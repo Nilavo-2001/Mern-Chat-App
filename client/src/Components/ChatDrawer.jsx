@@ -19,7 +19,15 @@ export default function ChatDrawer() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(chatContext);
+  const [chatLoading, setChatLoading] = useState(false);
+  const {
+    user,
+    selectedChat,
+    chats,
+    setChats,
+    setSelectedChat,
+    setGlobalLoading,
+  } = useContext(chatContext);
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -46,6 +54,7 @@ export default function ChatDrawer() {
         requestOptions
       );
       const result = await response.json();
+      console.log(result);
       if (result.length != 0) {
         setSearchResult(result);
       } else {
@@ -55,6 +64,38 @@ export default function ChatDrawer() {
     } catch (error) {
       errorToast("Error Occurred");
       setLoading(false);
+    }
+  };
+
+  const acessChat = async (userId) => {
+    try {
+      setGlobalLoading(true);
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+      var raw = JSON.stringify({
+        userId,
+      });
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+      let response = await fetch(
+        "http://localhost:5000/api/chat",
+        requestOptions
+      );
+      const result = await response.json();
+      console.log(result);
+      setSelectedChat(result);
+      if (!chats.find((chat) => chat._id == result._id))
+        setChats([result, ...chats]);
+      setGlobalLoading(false);
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+      errorToast("Failed to Fetch Chats");
     }
   };
 
@@ -105,7 +146,7 @@ export default function ChatDrawer() {
                     </ListItemText>
                   </ListItem>
                 ))
-              : searchResult.map((result, index) => (
+              : searchResult.map((user, index) => (
                   <ListItem
                     key={index}
                     sx={{
@@ -115,13 +156,16 @@ export default function ChatDrawer() {
                       marginBottom: "5px",
                       borderRadius: "10px",
                     }}
+                    onClick={() => {
+                      acessChat(user._id);
+                    }}
                   >
-                    {result.pic && (
+                    {user.pic && (
                       <ListItemAvatar>
-                        <Avatar src={result.pic} />
+                        <Avatar src={user.pic} />
                       </ListItemAvatar>
                     )}
-                    <ListItemText primary={result.name} />
+                    <ListItemText primary={user.name} />
                   </ListItem>
                 ))}
           </List>

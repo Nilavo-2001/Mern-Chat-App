@@ -20,6 +20,7 @@ function Chat() {
           display: "flex",
           justifyContent: "space-between",
           padding: "10px",
+          height: "100%",
         }}
       >
         <MyChats />

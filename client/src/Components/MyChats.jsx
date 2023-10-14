@@ -1,7 +1,143 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { chatContext } from "../context/chatProvider";
+import { error as errorToast } from "../utils/toast";
+import {
+  Box,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Skeleton,
+  Stack,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { getSender } from "../utils/chatLogics";
 
-function MyChats() {
-  return <div>My Chats Here !!</div>;
+function MyChats({ fetchAgain }) {
+  const [loggedUser, setLoggedUser] = useState();
+  const [chatLoading, setChatLoading] = useState(false);
+  const { selectedChat, setSelectedChat, user, chats, setChats } =
+    useContext(chatContext);
+
+  const fetchChats = async () => {
+    try {
+      // console.log("user token from fetchChats", user.token);
+      setChatLoading(true);
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      let reponse = await fetch(
+        "http://localhost:5000/api/chat",
+        requestOptions
+      );
+      let data = await reponse.json();
+      //console.log(data);
+      setChatLoading(false);
+      setChats(data);
+    } catch (error) {
+      console.log(error);
+      errorToast("Failed to fetch chats");
+    }
+  };
+
+  useEffect(() => {
+    //setLoggedUser(decObj(JSON.parse(localStorage.getItem("userInfo"))));
+    fetchChats();
+  }, []);
+
+  return (
+    <Box
+      sx={{
+        display: selectedChat ? { xs: "none", md: "flex" } : { md: "flex" },
+        flexDirection: "column",
+        bgcolor: "white",
+        height: "95%",
+        padding: "8px",
+        width: { xs: "100%", md: "40%" },
+        maxHeight: "85vh",
+        borderRadius: "10px",
+        borderWidth: "1px",
+      }}
+    >
+      <Box
+        sx={{
+          paddingX: "20px",
+          paddingY: "10px",
+          fontFamily: "Work Sans",
+          fontSize: { sm: "28px", md: "30px" },
+          display: "flex",
+          width: "100%",
+          height: "10%",
+          boxSizing: "border-box",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        My Chats
+        <Button variant="contained" disableElevation endIcon={<AddIcon />}>
+          Create Group Chat
+        </Button>
+      </Box>
+
+      <Box
+        sx={{
+          padding: "10px",
+          bgcolor: "#F8F8F8",
+          borderRadius: "10px",
+          width: "100%",
+          boxSizing: "border-box",
+          height: "90%",
+          overflowY: "auto",
+        }}
+      >
+        <List>
+          {chatLoading
+            ? Array.from({ length: 5 }, (_, index) => (
+                <ListItem
+                  sx={{
+                    padding: "9px",
+                    borderRadius: "5px",
+                    bgcolor: "#E8E8E8",
+                    marginBottom: "5px",
+                  }}
+                  key={index}
+                >
+                  <ListItemText>
+                    <Skeleton width={150} />
+                  </ListItemText>
+                </ListItem>
+              ))
+            : chats.map((chat) => {
+                return (
+                  <ListItem
+                    sx={{
+                      padding: "9px",
+                      borderRadius: "5px",
+                      bgcolor: "#E8E8E8",
+                      marginBottom: "5px",
+                    }}
+                    key={chat._id}
+                  >
+                    <ListItemText
+                      primary={
+                        chat.isGroupChat
+                          ? chat.chatName
+                          : getSender(user, chat.users)
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
+        </List>
+      </Box>
+    </Box>
+  );
 }
 
 export default MyChats;
