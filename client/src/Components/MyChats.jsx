@@ -10,8 +10,8 @@ import {
   Skeleton,
   Stack,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import { getSender } from "../utils/chatLogics";
+import GroupModal from "../miscellanious/GroupModal";
 
 function MyChats({ fetchAgain }) {
   const [loggedUser, setLoggedUser] = useState();
@@ -54,7 +54,7 @@ function MyChats({ fetchAgain }) {
   return (
     <Box
       sx={{
-        display: selectedChat ? { xs: "none", md: "flex" } : { md: "flex" },
+        display: selectedChat ? { xs: "none", md: "flex" } : { md: "flex" }, // to be improved
         flexDirection: "column",
         bgcolor: "white",
         height: "95%",
@@ -80,9 +80,7 @@ function MyChats({ fetchAgain }) {
         }}
       >
         My Chats
-        <Button variant="contained" disableElevation endIcon={<AddIcon />}>
-          Create Group Chat
-        </Button>
+        <GroupModal />
       </Box>
 
       <Box

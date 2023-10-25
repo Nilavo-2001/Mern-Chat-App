@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Avatar } from "@mui/material";
-import UserModal from "./Modal";
+import UserModal from "./UserModal";
 import { useContext } from "react";
 import { chatContext } from "../context/chatProvider";
 import { sucess } from "../utils/toast";
