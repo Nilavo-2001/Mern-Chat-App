@@ -18,10 +18,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import { styled } from "@mui/material/styles";
-import { useEffect } from "react";
+import { error as errorToast, sucess as sucessToast } from "../utils/toast";
 
 const style = {
   position: "absolute",
@@ -45,37 +42,89 @@ export default function GroupModal() {
   const { user, chats, setChats } = useContext(chatContext);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  useEffect(() => {
-    setSearchResult([
-      {
-        _id: "650c48a6034bfadd6d1ff966",
-        name: "Nilavo Bhattacharya",
-        email: "iem.nilavoo2020@gmail.com",
-        pic: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-        createdAt: "2023-09-21T13:44:06.402Z",
-        updatedAt: "2023-09-21T13:44:06.402Z",
-        __v: 0,
-      },
-      {
-        _id: "650c48c6034bfadd6d1ff96a",
-        name: "Pantu Pas",
-        email: "iem.nilavoo200@gmail.com",
-        pic: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-        createdAt: "2023-09-21T13:44:38.041Z",
-        updatedAt: "2023-09-21T13:44:38.041Z",
-        __v: 0,
-      },
-      {
-        _id: "650c48db034bfadd6d1ff96e",
-        name: "Rohan Das",
-        email: "iem.nilavoo210@gmail.com",
-        pic: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-        createdAt: "2023-09-21T13:44:59.620Z",
-        updatedAt: "2023-09-21T13:44:59.620Z",
-        __v: 0,
-      },
-    ]);
-  }, []);
+  const handleSearch = async (searchQuery) => {
+    // Clear previous search results
+    setSearchResult([]);
+    if (searchQuery == "") {
+      return;
+    }
+    try {
+      setSearchResult([{ name: "loading..." }]);
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+      };
+
+      const response = await fetch(
+        `http://localhost:5000/api/user/search?search=${searchQuery}`,
+        requestOptions
+      );
+      const result = await response.json();
+      console.log(result);
+      if (result.length != 0) {
+        setSearchResult(result);
+      } else {
+        setSearchResult([{ name: "No User Found" }]);
+      }
+      setLoading(false);
+    } catch (error) {
+      errorToast("Error Occurred");
+      setLoading(false);
+    }
+  };
+  const addUser = (user) => {
+    if (selectedUsers.find((curUser) => curUser._id == user._id)) {
+      errorToast(`${user.name} already added`);
+      return;
+    }
+    setSelectedUsers([...selectedUsers, user]);
+  };
+  const removeUser = (userId) => {
+    setSelectedUsers(selectedUsers.filter((curUser) => curUser._id != userId));
+  };
+  const handleSubmit = async () => {
+    if (groupChatName == "" || selectedUsers.length == 0) {
+      errorToast("Please fill all the fields");
+      return;
+    }
+    if (selectedUsers.length < 2) {
+      errorToast("Atleast 3 users required");
+      return;
+    }
+    try {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var raw = JSON.stringify({
+        users: selectedUsers.map((user) => user._id),
+        name: groupChatName,
+      });
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+      //console.log("fetch called");
+      const response = await fetch(
+        `http://localhost:5000/api/chat/group`,
+        requestOptions
+      );
+      const result = await response.json();
+      console.log("result ", result);
+      setChats([result, ...chats]);
+      setOpen(false);
+      sucessToast("Sucessfully created group");
+    } catch (error) {
+      console.log(error);
+      errorToast("Failed to create group");
+    }
+  };
+  console.log(selectedUsers);
   return (
     <div>
       <Button
@@ -126,12 +175,18 @@ export default function GroupModal() {
                 label="Group Name"
                 variant="outlined"
                 sx={{ marginBottom: "12px" }}
+                onChange={(e) => {
+                  setGroupChatName(e.target.value);
+                }}
               />
               <TextField
                 id="outlined-basic"
                 label="Users"
                 variant="outlined"
                 sx={{ marginBottom: "6px" }}
+                onChange={(e) => {
+                  handleSearch(e.target.value);
+                }}
               />
               <Box
                 sx={{
@@ -139,19 +194,27 @@ export default function GroupModal() {
                   flexWrap: "wrap",
                 }}
               >
-                <Button
-                  variant="contained"
-                  disableElevation
-                  sx={{ margin: "4px 3px 0 0" }}
-                  endIcon={<CloseIcon />}
-                  color="secondary"
-                >
-                  Nilavo Bhattacharya
-                </Button>
+                {selectedUsers.map((user, index) => {
+                  return (
+                    <Button
+                      variant="contained"
+                      disableElevation
+                      sx={{ margin: "4px 3px 0 0" }}
+                      endIcon={<CloseIcon />}
+                      color="secondary"
+                      key={index}
+                      onClick={() => {
+                        removeUser(user._id);
+                      }}
+                    >
+                      {user.name}
+                    </Button>
+                  );
+                })}
               </Box>
               <Box>
                 <List sx={{ marginTop: "12px" }}>
-                  {searchResult.map((user, index) => (
+                  {searchResult.slice(0, 4).map((user, index) => (
                     <ListItem
                       key={index}
                       sx={{
@@ -162,7 +225,7 @@ export default function GroupModal() {
                         borderRadius: "10px",
                       }}
                       onClick={() => {
-                        return;
+                        addUser(user);
                       }}
                     >
                       {user.pic && (
@@ -177,7 +240,11 @@ export default function GroupModal() {
               </Box>
             </Box>
             <Box sx={{ marginTop: "10px", alignSelf: "end" }}>
-              <Button variant="contained" disableElevation>
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                disableElevation
+              >
                 create chat
               </Button>
             </Box>

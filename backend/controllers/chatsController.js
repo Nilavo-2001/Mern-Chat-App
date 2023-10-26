@@ -76,18 +76,18 @@ const fetchChats = expressAsyncHandler(async (req, res) => {
 
 const createGroupChat = expressAsyncHandler(async (req, res) => {
     let { users, name } = req.body;
+    console.log(users, name);
     if (!users || !name) {
         return res.status(400).send("Please Fill all the feilds");
     }
 
-    let reqUsers = JSON.parse(users);
-    if (reqUsers.length < 2) {
+    if (users.length < 2) {
         return res.status(400).send("Atleast two members required to create a grp")
     }
     let newGrpChat = await Chat.create({
         chatName: name,
         isGroupChat: true,
-        users: [...reqUsers, req.user._id],
+        users: [...users, req.user._id],
         groupAdmin: req.user._id
     })
 
