@@ -14,17 +14,17 @@ function App() {
   const { user, setUser, globalLoading } = useContext(chatContext);
   return (
     <div className="App">
-      <Routes>
-        <Route path='/' element={(!user) ? <Home /> : <Chat />} />
-        <Route path='/chats' element={(!user) ? <Home /> : <Chat />} />
-      </Routes>
-      <ToastContainer />
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={globalLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      <Routes>
+        <Route path='/' element={(!user) ? <Home /> : <Chat />} />
+        <Route path='/chats' element={(!user) ? <Home /> : <Chat />} />
+      </Routes>
+      <ToastContainer />
     </div>
   );
 }

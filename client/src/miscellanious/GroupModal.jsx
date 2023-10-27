@@ -10,6 +10,7 @@ import { useContext } from "react";
 import { chatContext } from "../context/chatProvider";
 import {
   Avatar,
+  CircularProgress,
   List,
   ListItem,
   ListItemAvatar,
@@ -30,6 +31,7 @@ const style = {
   border: "1px solid #000",
   boxShadow: 24,
   p: 2,
+  zIndex: -1,
 };
 
 export default function GroupModal() {
@@ -95,6 +97,7 @@ export default function GroupModal() {
       return;
     }
     try {
+      setLoading(true);
       var myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("Authorization", `Bearer ${user.token}`);
@@ -115,11 +118,13 @@ export default function GroupModal() {
         requestOptions
       );
       const result = await response.json();
+      setLoading(false);
       console.log("result ", result);
       setChats([result, ...chats]);
       setOpen(false);
       sucessToast("Sucessfully created group");
     } catch (error) {
+      setLoading(false);
       console.log(error);
       errorToast("Failed to create group");
     }
@@ -240,13 +245,17 @@ export default function GroupModal() {
               </Box>
             </Box>
             <Box sx={{ marginTop: "10px", alignSelf: "end" }}>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disableElevation
-              >
-                create chat
-              </Button>
+              {loading ? (
+                <CircularProgress />
+              ) : (
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  disableElevation
+                >
+                  create chat
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>

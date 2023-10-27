@@ -6,6 +6,7 @@ import Modal from "@mui/material/Modal";
 import { Avatar, Stack } from "@mui/material";
 import { useContext } from "react";
 import { chatContext } from "../context/chatProvider";
+import Visibility from "@mui/icons-material/Visibility";
 //import { ChatState } from "../context/chatProvider";
 
 const style = {
@@ -25,16 +26,22 @@ const style = {
   alignItems: "center",
 };
 
-export default function UserModal({ name }) {
+export default function UserModal({ user, name, chatProfile }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const { user } = useContext(chatContext);
   return (
     <div>
-      <Typography onClick={handleOpen} color="inherit">
-        {name}
-      </Typography>
+      {chatProfile ? (
+        <Button variant="outlined" onClick={handleOpen}>
+          <Visibility />
+        </Button>
+      ) : (
+        <Typography onClick={handleOpen} color="inherit">
+          {name}
+        </Typography>
+      )}
+
       <Modal
         open={open}
         onClose={handleClose}

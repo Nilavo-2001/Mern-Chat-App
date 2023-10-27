@@ -54,15 +54,16 @@ function MyChats({ fetchAgain }) {
   return (
     <Box
       sx={{
-        display: selectedChat ? { xs: "none", md: "flex" } : { md: "flex" }, // to be improved
+        display: { lg: "flex", xs: selectedChat ? "none" : "flex" }, // to be improved
         flexDirection: "column",
         bgcolor: "white",
         height: "95%",
         padding: "8px",
-        width: { xs: "100%", md: "40%" },
-        maxHeight: "85vh",
+        width: { xs: "100%", lg: "40%" },
+        height: "85vh",
         borderRadius: "10px",
         borderWidth: "1px",
+        boxSizing: "border-box",
       }}
     >
       <Box
@@ -70,7 +71,7 @@ function MyChats({ fetchAgain }) {
           paddingX: "20px",
           paddingY: "10px",
           fontFamily: "Work Sans",
-          fontSize: { sm: "28px", md: "30px" },
+          fontSize: { xs: "28px", md: "30px" },
           display: "flex",
           width: "100%",
           height: "10%",
@@ -79,7 +80,7 @@ function MyChats({ fetchAgain }) {
           alignItems: "flex-start",
         }}
       >
-        My Chats
+        <span>My Chats</span>
         <GroupModal />
       </Box>
 
@@ -118,9 +119,14 @@ function MyChats({ fetchAgain }) {
                       padding: "9px",
                       borderRadius: "5px",
                       bgcolor: "#E8E8E8",
+                      ":hover": { bgcolor: "grey" },
                       marginBottom: "5px",
+                      cursor: "pointer",
                     }}
                     key={chat._id}
+                    onClick={() => {
+                      setSelectedChat(chat);
+                    }}
                   >
                     <ListItemText
                       primary={

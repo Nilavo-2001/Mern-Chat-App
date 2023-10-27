@@ -50,7 +50,7 @@ export default function ProfileMenu() {
         }}
       >
         <MenuItem>
-          <UserModal name={"My Profile"} />
+          <UserModal user={user} name={"My Profile"} />
         </MenuItem>
         <MenuItem
           onClick={() => {
