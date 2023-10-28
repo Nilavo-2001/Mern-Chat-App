@@ -13,11 +13,18 @@ import {
 import { getSender } from "../utils/chatLogics";
 import GroupModal from "../miscellanious/GroupModal";
 
-function MyChats({ fetchAgain }) {
+function MyChats() {
   const [loggedUser, setLoggedUser] = useState();
   const [chatLoading, setChatLoading] = useState(false);
-  const { selectedChat, setSelectedChat, user, chats, setChats } =
-    useContext(chatContext);
+  const {
+    selectedChat,
+    setSelectedChat,
+    user,
+    chats,
+    setChats,
+    fetchAgain,
+    setFetchAgain,
+  } = useContext(chatContext);
 
   const fetchChats = async () => {
     try {
@@ -49,7 +56,7 @@ function MyChats({ fetchAgain }) {
   useEffect(() => {
     //setLoggedUser(decObj(JSON.parse(localStorage.getItem("userInfo"))));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box

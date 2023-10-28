@@ -51,7 +51,7 @@ const loginUser = expressAsyncHandler(
         const checkUser = await User.findOne({ email });
         if (checkUser && await bcrypt.compare(password, checkUser.password)) {
             return res.status(200).json({
-                id: checkUser._id,
+                _id: checkUser._id,
                 name: checkUser.name,
                 email: checkUser.email,
                 pic: checkUser.pic,

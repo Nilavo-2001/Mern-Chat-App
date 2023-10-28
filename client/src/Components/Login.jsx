@@ -41,7 +41,7 @@ function Login() {
       } else {
         warning(userData);
       }
-      console.log(userData);
+      console.log("login ", userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
       setUser(userData);
       sucess("Login Sucessful");

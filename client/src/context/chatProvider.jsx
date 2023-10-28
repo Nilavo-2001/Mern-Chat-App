@@ -9,6 +9,7 @@ const ChatProvider = ({ children }) => {
   const [chats, setChats] = useState([]);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
+  const [fetchAgain, setFetchAgain] = useState(false);
   useEffect(() => {
     //  console.log("chat prov called");
     const userInfo = decObj(JSON.parse(localStorage.getItem("userInfo")));
@@ -27,6 +28,8 @@ const ChatProvider = ({ children }) => {
         setChats,
         globalLoading,
         setGlobalLoading,
+        fetchAgain,
+        setFetchAgain,
       }}
     >
       {!userLoading && children}
