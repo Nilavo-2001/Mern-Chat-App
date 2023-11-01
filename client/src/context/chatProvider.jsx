@@ -12,7 +12,9 @@ const ChatProvider = ({ children }) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   useEffect(() => {
     //  console.log("chat prov called");
-    const userInfo = decObj(JSON.parse(localStorage.getItem("userInfo")));
+    let userInfo = null;
+    if (localStorage.getItem("userInfo"))
+      userInfo = decObj(JSON.parse(localStorage.getItem("userInfo")));
     setUser(userInfo);
     setUserLoading(false);
     // console.log("user token from chatProvider", userInfo.token);

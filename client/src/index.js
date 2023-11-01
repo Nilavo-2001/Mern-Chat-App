@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import ChatProvider from './context/chatProvider';
+import "react-chat-elements/dist/main.css"
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <ChatProvider>

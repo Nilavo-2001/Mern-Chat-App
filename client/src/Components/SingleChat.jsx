@@ -1,14 +1,92 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { chatContext } from "../context/chatProvider";
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  InputBase,
+  Typography,
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { getSender, getSenderFull } from "../utils/chatLogics";
 import UserModal from "../miscellanious/UserModal";
 import UpdateGroupModal from "../miscellanious/UpdateGroupModal";
+import SendIcon from "@mui/icons-material/Send";
+import { error as errorToast } from "../utils/toast";
+import ScrollChat from "../miscellanious/ScrollChat";
 
 function SingleChat() {
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState();
+  const [newMessage, setNewMessage] = useState();
   const { user, selectedChat, setSelectedChat } = useContext(chatContext);
+
+  const fetchAllMessages = async () => {
+    if (!selectedChat) return;
+    try {
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+      setLoading(true);
+      const res = await fetch(
+        `http://localhost:5000/api/message/${selectedChat._id}`,
+        requestOptions
+      );
+      const data = await res.json();
+      console.log(data);
+      setMessages(data);
+      setLoading(false);
+    } catch (error) {
+      errorToast("Failed to Load Messages");
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage) {
+      errorToast("Please Enter a Message to Send");
+      return;
+    }
+    try {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var raw = JSON.stringify({
+        content: newMessage,
+        chatId: selectedChat._id,
+      });
+
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+      setNewMessage("");
+      const res = await fetch(
+        "http://localhost:5000/api/message",
+        requestOptions
+      );
+      const data = await res.json();
+      console.log(data);
+      setMessages([...messages, data]);
+    } catch (error) {
+      errorToast("Failed to Send Message");
+    }
+  };
+  const typingHandler = async (e) => {
+    setNewMessage(e.target.value);
+  };
+
+  useEffect(() => {
+    fetchAllMessages();
+  }, [selectedChat]);
   return (
     <>
       {selectedChat ? (
@@ -17,7 +95,7 @@ function SingleChat() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              height: "10%",
+              height: "8%",
               boxSizing: "border-box",
               alignItems: "flex-end",
             }}
@@ -50,12 +128,65 @@ function SingleChat() {
             sx={{
               backgroundColor: "#E8E8E8",
               width: "100%",
-              height: "88%",
+              height: "90%",
               boxSizing: "border-box",
               borderRadius: "15px",
               overflowY: "hidden",
             }}
-          ></Box>
+          >
+            <Box
+              sx={{
+                height: "85%",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                paddingY: "4%",
+                paddingX: "1%",
+                justifyContent: loading ? "center" : "normal",
+              }}
+            >
+              {loading ? (
+                <CircularProgress
+                  sx={{
+                    alignSelf: "center",
+                  }}
+                  size={200}
+                />
+              ) : (
+                <ScrollChat messages={messages} />
+              )}
+            </Box>
+            <Box
+              sx={{
+                height: "15%",
+                boxSizing: "border-box",
+                padding: "8px",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <InputBase
+                placeholder="What's on your mind..."
+                value={newMessage}
+                onChange={typingHandler}
+                sx={{
+                  width: "90%",
+                  backgroundColor: "#C0C0C0",
+                  borderRadius: "0.8rem",
+                  padding: "1rem 2rem",
+                }}
+              />
+              <Button
+                sx={{
+                  width: "9%",
+                }}
+                variant="contained"
+                onClick={sendMessage}
+              >
+                <SendIcon fontSize="large" />
+              </Button>
+            </Box>
+          </Box>
         </>
       ) : (
         <Box

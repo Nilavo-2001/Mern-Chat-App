@@ -21,6 +21,7 @@ export default function ProfileMenu() {
   const { user, setUser } = useContext(chatContext);
 
   const logout = () => {
+    localStorage.removeItem("userInfo");
     setUser(null);
     sucess("Logged Out Sucessfully");
   };

@@ -1,0 +1,6 @@
+.scroll-chat {
+  height: 100%;
+}
+.scroll-chat::-webkit-scrollbar {
+  display: none;
+}
