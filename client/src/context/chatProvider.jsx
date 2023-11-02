@@ -10,6 +10,7 @@ const ChatProvider = ({ children }) => {
   const [globalLoading, setGlobalLoading] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [notification, setNotification] = useState([]);
   useEffect(() => {
     //  console.log("chat prov called");
     let userInfo = null;
@@ -32,6 +33,8 @@ const ChatProvider = ({ children }) => {
         setGlobalLoading,
         fetchAgain,
         setFetchAgain,
+        notification,
+        setNotification,
       }}
     >
       {!userLoading && children}

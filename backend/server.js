@@ -29,12 +29,12 @@ const io = require('socket.io')(server, {
 
 io.on("connection", (socket) => {
     console.log("socket connection established");
-
-    socket.on("setup", (userData) => {
+    const listener = (userData) => {
         console.log(`${userData.name} joined room`);
         socket.join(userData._id);
         socket.emit("connected")
-    })
+    }
+    socket.on("setup", listener)
 
     socket.on("join chat", (room) => {
         socket.join(room);
@@ -50,4 +50,15 @@ io.on("connection", (socket) => {
             socket.in(user._id).emit("received message", message);
         });
     })
+
+    socket.on("start typing", (data) => {
+        console.log("user started typing");
+        const { userId, room } = data;
+        socket.in(room).emit("start typing", userId);
+    })
+    socket.on("stop typing", (room) => {
+        console.log("user stopped typing");
+        socket.in(room).emit("stop typing");
+    })
+
 })

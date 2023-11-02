@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import { MessageBox } from "react-chat-elements";
+import { MessageBox, SystemMessage } from "react-chat-elements";
 import { chatContext } from "../context/chatProvider";
 import ScrollableFeed from "react-scrollable-feed";
 import "../styles/chatScroll.css";
-function ScrollChat({ messages }) {
+function ScrollChat({ messages, isTyping }) {
   const { user } = useContext(chatContext);
   return (
     <ScrollableFeed className="scroll-chat">
@@ -22,6 +22,7 @@ function ScrollChat({ messages }) {
             />
           );
         })}
+      {isTyping && <SystemMessage text={"user typing ..."} />}
     </ScrollableFeed>
   );
 }

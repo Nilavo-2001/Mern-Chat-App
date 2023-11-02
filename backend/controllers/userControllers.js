@@ -32,7 +32,8 @@ const registerUser = expressAsyncHandler(async (req, res) => {
 
     if (newUser) {
         return res.status(200).json({
-            id: newUser._id,
+            _id: newUser._id,
+            name: newUser.name,
             email: newUser.email,
             pic: newUser.pic,
             token: generateToken(newUser._id)

@@ -112,7 +112,7 @@ function Signup() {
         sucess("Registration Sucessful");
       }
       const userData = await response.json();
-      console.log(userData);
+      console.log("signup ", userData);
       localStorage.setItem("userInfo", JSON.stringify(encObj(userData)));
       setUser(userData);
       navigate("/chats");

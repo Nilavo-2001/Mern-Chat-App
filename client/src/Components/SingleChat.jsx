@@ -17,13 +17,15 @@ import { error as errorToast } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
 import io from "socket.io-client";
 const ENDPOINT = "http://localhost:5000";
-var socket, selectedChatCompare;
+var socket, selectedChatCompare, lastTypingTime;
 function SingleChat() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState();
   const [socketConnected, setSocketConnected] = useState(false);
-  const { user, selectedChat, setSelectedChat } = useContext(chatContext);
+  const [isTyping, setIsTyping] = useState(false);
+  const { user, selectedChat, setSelectedChat, notification, setNotification } =
+    useContext(chatContext);
 
   useEffect(() => {
     console.log("chat box effect");
@@ -31,6 +33,13 @@ function SingleChat() {
     socket.emit("setup", user);
     socket.on("connected", () => {
       setSocketConnected(true);
+    });
+    socket.on("start typing", (userId) => {
+      if (userId == user._id || isTyping) return;
+      setIsTyping(true);
+    });
+    socket.on("stop typing", () => {
+      setIsTyping(false);
     });
   }, []);
 
@@ -96,6 +105,14 @@ function SingleChat() {
   };
   const typingHandler = async (e) => {
     setNewMessage(e.target.value);
+    socket.emit("start typing", { userId: user._id, room: selectedChat._id });
+    const len = 3000;
+    lastTypingTime = new Date().getTime();
+    setTimeout(() => {
+      let curTime = new Date().getTime();
+      if (curTime - lastTypingTime >= len)
+        socket.emit("stop typing", selectedChat._id);
+    }, len);
   };
 
   useEffect(() => {
@@ -103,15 +120,21 @@ function SingleChat() {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("received message", (message) => {
+    const listener = (message) => {
       console.log("received a new message");
       if (!selectedChat || selectedChat._id != message.chat._id) {
-        // display notification
+        if (!notification.includes(message))
+          setNotification([message, ...notification]);
       } else {
         console.log("messages ", messages);
         setMessages([...messages, message]);
       }
-    });
+    };
+    socket.on("received message", listener);
+    return () => {
+      console.log("clean up called");
+      socket.off("received message", listener);
+    };
   });
   return (
     <>
@@ -179,7 +202,7 @@ function SingleChat() {
                   size={200}
                 />
               ) : (
-                <ScrollChat messages={messages} />
+                <ScrollChat messages={messages} isTyping={isTyping} />
               )}
             </Box>
             <Box
