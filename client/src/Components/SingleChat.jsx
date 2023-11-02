@@ -15,12 +15,24 @@ import UpdateGroupModal from "../miscellanious/UpdateGroupModal";
 import SendIcon from "@mui/icons-material/Send";
 import { error as errorToast } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
-
+import io from "socket.io-client";
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
 function SingleChat() {
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState();
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState();
+  const [socketConnected, setSocketConnected] = useState(false);
   const { user, selectedChat, setSelectedChat } = useContext(chatContext);
+
+  useEffect(() => {
+    console.log("chat box effect");
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connected", () => {
+      setSocketConnected(true);
+    });
+  }, []);
 
   const fetchAllMessages = async () => {
     if (!selectedChat) return;
@@ -39,10 +51,11 @@ function SingleChat() {
         requestOptions
       );
       const data = await res.json();
-      console.log(data);
       setMessages(data);
       setLoading(false);
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
+      console.log(error);
       errorToast("Failed to Load Messages");
     }
   };
@@ -76,6 +89,7 @@ function SingleChat() {
       const data = await res.json();
       console.log(data);
       setMessages([...messages, data]);
+      socket.emit("new message", data);
     } catch (error) {
       errorToast("Failed to Send Message");
     }
@@ -87,6 +101,18 @@ function SingleChat() {
   useEffect(() => {
     fetchAllMessages();
   }, [selectedChat]);
+
+  useEffect(() => {
+    socket.on("received message", (message) => {
+      console.log("received a new message");
+      if (!selectedChat || selectedChat._id != message.chat._id) {
+        // display notification
+      } else {
+        console.log("messages ", messages);
+        setMessages([...messages, message]);
+      }
+    });
+  });
   return (
     <>
       {selectedChat ? (
