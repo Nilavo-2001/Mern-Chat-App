@@ -61,4 +61,12 @@ io.on("connection", (socket) => {
         socket.in(room).emit("stop typing");
     })
 
+    socket.on("leave chat", (room) => {
+        socket.leave(room);
+        console.log(`user left room ${room}`);
+        // console.log(socket.rooms);
+    })
+
+
+
 })

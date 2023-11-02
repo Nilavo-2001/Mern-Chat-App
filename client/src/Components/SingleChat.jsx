@@ -42,7 +42,7 @@ function SingleChat() {
       setSocketConnected(true);
     });
     socket.on("start typing", (userId) => {
-      if (userId == user._id || isTyping) return;
+      if (userId == user._id) return;
       setIsTyping(true);
     });
     socket.on("stop typing", () => {
@@ -154,6 +154,15 @@ function SingleChat() {
 
   useEffect(() => {
     fetchAllMessages();
+
+    if (selectedChat) socket.emit("join chat", selectedChat._id);
+    return () => {
+      if (selectedChat) {
+        socket.emit("stop typing", selectedChat._id);
+        socket.emit("leave chat", selectedChat._id);
+        setIsTyping(false);
+      }
+    };
   }, [selectedChat]);
 
   useEffect(() => {
@@ -169,7 +178,6 @@ function SingleChat() {
     };
     socket.on("received message", listener);
     return () => {
-      console.log("clean up called");
       socket.off("received message", listener);
     };
   });
