@@ -16,9 +16,13 @@ export default function NotificationMenu() {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = (message) => {
-    setSelectedChat(message.chat);
-    setNotification(notification.filter((msg) => msg._id != message._id));
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleChatRedirect = (chat) => {
+    setSelectedChat(chat);
+    setNotification(notification.filter((cht) => cht._id != chat._id));
     setAnchorEl(null);
   };
 
@@ -46,27 +50,22 @@ export default function NotificationMenu() {
         }}
       >
         {notification.length == 0 ? (
-          <MenuItem
-            onClick={() => {
-              setAnchorEl(null);
-            }}
-          >
-            No Notification to display
-          </MenuItem>
+          <MenuItem onClick={handleClose}>No Notification to display</MenuItem>
         ) : (
-          notification.map((message) => {
+          notification.map((chat) => {
             return (
               <MenuItem
                 onClick={() => {
-                  handleClose(message);
+                  handleChatRedirect(chat);
                 }}
               >
-                {message.chat.isGroupChat
-                  ? `Message recieved in ${message.chat.chatName}`
-                  : `Message recieved from ${getSender(
-                      user,
-                      message.chat.users
-                    )}`}
+                {chat.isGroupChat
+                  ? `${chat.unread} new ${
+                      chat.unread > 1 ? "mesaages" : "message"
+                    } recieved in ${chat.chatName}`
+                  : `${chat.unread} new ${
+                      chat.unread > 1 ? "mesaages" : "message"
+                    } recieved from ${getSender(user, chat.users)}`}
               </MenuItem>
             );
           })

@@ -10,9 +10,9 @@ import {
   Skeleton,
   Stack,
 } from "@mui/material";
-import { getSender } from "../utils/chatLogics";
+import { getSender, getSenderFull } from "../utils/chatLogics";
 import GroupModal from "../miscellanious/GroupModal";
-
+import { ChatItem } from "react-chat-elements";
 function MyChats() {
   const [loggedUser, setLoggedUser] = useState();
   const [chatLoading, setChatLoading] = useState(false);
@@ -24,12 +24,14 @@ function MyChats() {
     setChats,
     fetchAgain,
     setFetchAgain,
+    notification,
+    setNotification,
   } = useContext(chatContext);
 
-  const fetchChats = async () => {
+  const fetchChats = async (toLoad) => {
     try {
       // console.log("user token from fetchChats", user.token);
-      setChatLoading(true);
+      if (toLoad) setChatLoading(true);
       var myHeaders = new Headers();
       myHeaders.append("Authorization", `Bearer ${user.token}`);
 
@@ -44,14 +46,19 @@ function MyChats() {
         requestOptions
       );
       let data = await reponse.json();
-      //console.log(data);
-      setChatLoading(false);
+      console.log("chats", data);
+      if (toLoad) setChatLoading(false);
       setChats(data);
+      setNotification(data.filter((chat) => chat.unread != 0));
     } catch (error) {
       console.log(error);
       errorToast("Failed to fetch chats");
     }
   };
+
+  useEffect(() => {
+    fetchChats(true);
+  }, []);
 
   useEffect(() => {
     //setLoggedUser(decObj(JSON.parse(localStorage.getItem("userInfo"))));
@@ -121,28 +128,29 @@ function MyChats() {
               ))
             : chats.map((chat) => {
                 return (
-                  <ListItem
-                    sx={{
-                      padding: "9px",
-                      borderRadius: "5px",
-                      bgcolor: "#E8E8E8",
-                      ":hover": { bgcolor: "grey" },
-                      marginBottom: "5px",
-                      cursor: "pointer",
-                    }}
+                  <ChatItem
+                    avatar={
+                      chat.isGroupChat
+                        ? null
+                        : getSenderFull(user, chat.users).pic
+                    }
+                    title={
+                      chat.isGroupChat
+                        ? chat.chatName
+                        : getSender(user, chat.users)
+                    }
+                    subtitle={
+                      chat.latestMessage ? chat.latestMessage.content : ""
+                    }
+                    date={
+                      chat.latestMessage ? chat.latestMessage.createdAt : ""
+                    }
+                    unread={chat.unread}
                     key={chat._id}
                     onClick={() => {
                       setSelectedChat(chat);
                     }}
-                  >
-                    <ListItemText
-                      primary={
-                        chat.isGroupChat
-                          ? chat.chatName
-                          : getSender(user, chat.users)
-                      }
-                    />
-                  </ListItem>
+                  />
                 );
               })}
         </List>

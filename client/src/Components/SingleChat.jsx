@@ -24,8 +24,15 @@ function SingleChat() {
   const [newMessage, setNewMessage] = useState();
   const [socketConnected, setSocketConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const { user, selectedChat, setSelectedChat, notification, setNotification } =
-    useContext(chatContext);
+  const {
+    user,
+    selectedChat,
+    setSelectedChat,
+    notification,
+    setNotification,
+    fetchAgain,
+    setFetchAgain,
+  } = useContext(chatContext);
 
   useEffect(() => {
     console.log("chat box effect");
@@ -61,6 +68,7 @@ function SingleChat() {
       );
       const data = await res.json();
       setMessages(data);
+      setFetchAgain(!fetchAgain);
       setLoading(false);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
@@ -115,6 +123,35 @@ function SingleChat() {
     }, len);
   };
 
+  const updateMessageHandler = async (message) => {
+    try {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      var raw = JSON.stringify({
+        messageId: message._id,
+      });
+
+      var requestOptions = {
+        method: "PUT",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      let res = await fetch(
+        "http://localhost:5000/api/message/update",
+        requestOptions
+      );
+      let data = await res.json();
+      console.log("update", data);
+      setFetchAgain(!fetchAgain);
+    } catch (error) {
+      errorToast("Failed to update message view");
+    }
+  };
+
   useEffect(() => {
     fetchAllMessages();
   }, [selectedChat]);
@@ -123,11 +160,11 @@ function SingleChat() {
     const listener = (message) => {
       console.log("received a new message");
       if (!selectedChat || selectedChat._id != message.chat._id) {
-        if (!notification.includes(message))
-          setNotification([message, ...notification]);
+        setFetchAgain(!fetchAgain);
       } else {
         console.log("messages ", messages);
         setMessages([...messages, message]);
+        updateMessageHandler(message);
       }
     };
     socket.on("received message", listener);

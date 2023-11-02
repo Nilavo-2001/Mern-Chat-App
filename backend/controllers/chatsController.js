@@ -68,8 +68,17 @@ const fetchChats = expressAsyncHandler(async (req, res) => {
             path: "sender",
             select: "name pic email"
         }
-    }).populate({ path: "groupAdmin", select: "-password" }).sort({ updatedAt: -1 });
+    }).populate({ path: "groupAdmin", select: "-password" }).sort({ updatedAt: -1 }).lean();
 
+    for (let i = 0; i < chats.length; i++) {
+        let count = 0;
+        const messages = await Message.find({ chat: chats[i]._id });
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].seen && !messages[i].seen.includes(id))
+                count++;
+        }
+        chats[i].unread = count;
+    }
     return res.status(200).json(chats);
 
 })
@@ -158,5 +167,7 @@ const addToGroup = expressAsyncHandler(async (req, res) => {
 
     return res.status(200).json(grpChat);
 })
+
+
 
 module.exports = { acessChats, fetchChats, createGroupChat, renameGrp, removeFromGroup, addToGroup }

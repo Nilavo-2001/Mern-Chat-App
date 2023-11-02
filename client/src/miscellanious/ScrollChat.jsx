@@ -19,6 +19,7 @@ function ScrollChat({ messages, isTyping }) {
               }
               text={message.content}
               avatar={message.sender._id == user._id ? "" : message.sender.pic}
+              date={message.createdAt}
             />
           );
         })}

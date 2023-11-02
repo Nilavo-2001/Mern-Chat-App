@@ -6,7 +6,7 @@ const expressAsyncHandler = require("express-async-handler");
 
 const sendMessage = expressAsyncHandler(async (req, res) => {
     const { content, chatId } = req.body;
-
+    const userId = req.user._id;
     if (!content || !chatId) {
         console.log("Invalid data passed into request");
         return res.status(400);
@@ -18,7 +18,8 @@ const sendMessage = expressAsyncHandler(async (req, res) => {
             {
                 sender: req.user._id,
                 content,
-                chat: chatId
+                chat: chatId,
+                seen: [userId]
             }
         )
         await message.populate({
@@ -50,11 +51,27 @@ const sendMessage = expressAsyncHandler(async (req, res) => {
 
 const getMessages = expressAsyncHandler(async (req, res) => {
     const { chatId } = req.params;
+    const userId = req.user._id;
     try {
-        const chats = await Message.find({ chat: chatId }).
+        const update = await Message.updateMany({ chat: chatId }, { $addToSet: { seen: userId } });
+        const messages = await Message.find({ chat: chatId }).
             populate({ path: "sender", select: "name pic email" }).
             populate({ path: "chat" });
-        return res.status(200).json(chats)
+        return res.status(200).json(messages)
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+}
+)
+
+const updateMessage = expressAsyncHandler(async (req, res) => {
+    const { messageId } = req.body;
+    const userId = req.user._id;
+    try {
+        let message = await Message.findByIdAndUpdate(messageId, { $addToSet: { seen: userId } });
+        console.log("update ", message);
+        return res.status(200).json(message);
     } catch (error) {
         res.status(400);
         throw new Error(error.message);
@@ -63,4 +80,10 @@ const getMessages = expressAsyncHandler(async (req, res) => {
 )
 
 
-module.exports = { sendMessage, getMessages };
+
+
+
+
+
+
+module.exports = { sendMessage, getMessages, updateMessage };
