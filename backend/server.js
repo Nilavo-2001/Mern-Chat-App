@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require("./config/db")
+const test = require("./middlewares/testDb");
 dotenv.config();
 connectDB();
 app.use(cors());
@@ -16,6 +17,7 @@ const server = app.listen(PORT, (err) => {
         console.log(err);
         return;
     }
+    //test();
     console.log(`Server running sucessfully on PORT ${PORT}`);
 })
 

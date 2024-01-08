@@ -26,7 +26,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: { xs: 300, sm: 400 },
   bgcolor: "background.paper",
   border: "1px solid #000",
   boxShadow: 24,
@@ -137,6 +137,11 @@ export default function GroupModal() {
         variant="contained"
         disableElevation
         endIcon={<AddIcon />}
+        sx={{
+          padding: { xs: "3px 6px", sm: "6px 16px" },
+          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+          marginBottom: { xs: "2px", sm: "0" },
+        }}
       >
         Create Group Chat
       </Button>

@@ -17,7 +17,13 @@ function NavBar() {
     >
       <ChatDrawer />
 
-      <Typography variant="h4" fontFamily={"Work Sans"}>
+      <Typography
+        variant="h4"
+        fontFamily={"Work Sans"}
+        sx={{
+          fontSize: { xs: "1.8rem", sm: "2.125rem" },
+        }}
+      >
         Chat-App
       </Typography>
       <Box sx={{ display: "flex" }}>

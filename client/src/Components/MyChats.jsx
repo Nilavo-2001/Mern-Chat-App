@@ -71,10 +71,9 @@ function MyChats() {
         display: { lg: "flex", xs: selectedChat ? "none" : "flex" }, // to be improved
         flexDirection: "column",
         bgcolor: "white",
-        height: "95%",
         padding: "8px",
         width: { xs: "100%", lg: "40%" },
-        height: "85vh",
+        height: { xs: "100%", md: "85vh" },
         borderRadius: "10px",
         borderWidth: "1px",
         boxSizing: "border-box",
@@ -82,19 +81,25 @@ function MyChats() {
     >
       <Box
         sx={{
-          paddingX: "20px",
-          paddingY: "10px",
+          paddingX: { xs: "10px", sm: "20px" },
+          paddingY: { xs: "5px", sm: "10px" },
           fontFamily: "Work Sans",
           fontSize: { xs: "28px", md: "30px" },
           display: "flex",
           width: "100%",
-          height: "10%",
+          height: { sm: "7%", md: "10%" },
           boxSizing: "border-box",
           justifyContent: "space-between",
-          alignItems: "flex-start",
+          alignItems: { xs: "flex-end", sm: "flex-start" },
         }}
       >
-        <span>My Chats</span>
+        <Box
+          sx={{
+            fontSize: { xs: "1.6rem", sm: "2rem" },
+          }}
+        >
+          My Chats
+        </Box>
         <GroupModal />
       </Box>
 
