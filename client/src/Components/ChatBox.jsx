@@ -15,7 +15,7 @@ function ChatBox() {
         height: "95%",
         padding: "0 12px 12px 12px",
         width: { xs: "100%", lg: "56%" },
-        height: "85vh",
+        height: "88vh",
         borderRadius: "10px",
         borderWidth: "1px",
         boxSizing: "border-box",

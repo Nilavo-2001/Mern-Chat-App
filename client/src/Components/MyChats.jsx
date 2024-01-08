@@ -73,7 +73,7 @@ function MyChats() {
         bgcolor: "white",
         padding: "8px",
         width: { xs: "100%", lg: "40%" },
-        height: { xs: "100%", md: "85vh" },
+        height: "88vh",
         borderRadius: "10px",
         borderWidth: "1px",
         boxSizing: "border-box",
@@ -90,7 +90,7 @@ function MyChats() {
           height: { sm: "7%", md: "10%" },
           boxSizing: "border-box",
           justifyContent: "space-between",
-          alignItems: { xs: "flex-end", sm: "flex-start" },
+          alignItems: { xs: "center", sm: "flex-start" },
         }}
       >
         <Box

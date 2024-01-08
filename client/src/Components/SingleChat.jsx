@@ -6,6 +6,7 @@ import {
   CircularProgress,
   InputBase,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -50,6 +51,8 @@ function SingleChat() {
     });
   }, []);
 
+  const isSmall = useMediaQuery("(max-width:500px)");
+  const isMedium = useMediaQuery("(max-width:900px)");
   const fetchAllMessages = async () => {
     if (!selectedChat) return;
     try {
@@ -152,6 +155,20 @@ function SingleChat() {
     }
   };
 
+  const trimName = (name) => {
+    let maxChar = 15;
+    if (isSmall) {
+      maxChar = 12;
+    } else if (isMedium) {
+      maxChar = 30;
+    } else {
+      maxChar = 50;
+    }
+    if (name.length > maxChar) {
+      return name.substring(0, 8) + "..";
+    }
+    return name;
+  };
   useEffect(() => {
     fetchAllMessages();
 
@@ -205,8 +222,8 @@ function SingleChat() {
             </Button>
             <Typography variant="h4" fontFamily={"Work Sans"}>
               {selectedChat.isGroupChat
-                ? selectedChat.chatName
-                : getSender(user, selectedChat.users)}
+                ? trimName(selectedChat.chatName)
+                : trimName(getSender(user, selectedChat.users))}
             </Typography>
 
             {selectedChat.isGroupChat ? (
