@@ -43,7 +43,7 @@ const server = app.listen(PORT, (err) => {
 const io = require('socket.io')(server, {
     pingTimout: 60000,
     cors: {
-        origin: "https://anonychat-gxrf.onrender.com/"
+        origin: "https://anonychat-gxrf.onrender.com"
     },
 
 });
