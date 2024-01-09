@@ -17,7 +17,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { error as errorToast } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
 import io from "socket.io-client";
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://anonychat-gxrf.onrender.com/";
 var socket, selectedChatCompare, lastTypingTime;
 function SingleChat() {
   const [loading, setLoading] = useState(false);
