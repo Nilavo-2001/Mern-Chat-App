@@ -61,7 +61,7 @@ export default function GroupModal() {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/user/search?search=${searchQuery}`,
+        `/api/user/search?search=${searchQuery}`,
         requestOptions
       );
       const result = await response.json();
@@ -113,10 +113,7 @@ export default function GroupModal() {
         redirect: "follow",
       };
       //console.log("fetch called");
-      const response = await fetch(
-        `http://localhost:5000/api/chat/group`,
-        requestOptions
-      );
+      const response = await fetch(`/api/chat/group`, requestOptions);
       const result = await response.json();
       setLoading(false);
       console.log("result ", result);

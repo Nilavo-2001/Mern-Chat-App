@@ -103,10 +103,7 @@ function Signup() {
         redirect: "follow",
       };
 
-      const response = await fetch(
-        "http://localhost:5000/api/user/auth/register",
-        requestOptions
-      );
+      const response = await fetch("/api/user/auth/register", requestOptions);
       if (response.status == 200) {
         setLoading(false);
         sucess("Registration Sucessful");

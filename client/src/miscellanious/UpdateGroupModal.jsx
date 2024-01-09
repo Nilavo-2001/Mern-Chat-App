@@ -70,10 +70,7 @@ export default function UpdateGroupModal() {
         redirect: "follow",
       };
 
-      const res = await fetch(
-        "http://localhost:5000/api/chat/rename",
-        requestOptions
-      );
+      const res = await fetch("/api/chat/rename", requestOptions);
       const data = await res.json();
       console.log("rename chat updated data ", data);
       setSelectedChat(data);
@@ -113,10 +110,7 @@ export default function UpdateGroupModal() {
         redirect: "follow",
       };
 
-      const res = await fetch(
-        "http://localhost:5000/api/chat/groupadd",
-        requestOptions
-      );
+      const res = await fetch("/api/chat/groupadd", requestOptions);
       const data = await res.json();
       setSelectedChat(data);
       setFetchAgain(!fetchAgain);
@@ -155,10 +149,7 @@ export default function UpdateGroupModal() {
         redirect: "follow",
       };
 
-      const res = await fetch(
-        "http://localhost:5000/api/chat/groupremove",
-        requestOptions
-      );
+      const res = await fetch("/api/chat/groupremove", requestOptions);
       const data = await res.json();
       curUser._id == user._id ? setSelectedChat() : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
@@ -185,7 +176,7 @@ export default function UpdateGroupModal() {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/user/search?search=${searchQuery}`,
+        `/api/user/search?search=${searchQuery}`,
         requestOptions
       );
       const result = await response.json();
@@ -225,10 +216,7 @@ export default function UpdateGroupModal() {
         redirect: "follow",
       };
 
-      const res = await fetch(
-        "http://localhost:5000/api/chat/groupremove",
-        requestOptions
-      );
+      const res = await fetch("/api/chat/groupremove", requestOptions);
       const data = await res.json();
       setSelectedChat();
       setFetchAgain(!fetchAgain);
