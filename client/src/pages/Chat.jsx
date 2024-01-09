@@ -12,15 +12,19 @@ function Chat() {
         display: "flex",
         flexDirection: "column",
         width: "100%",
+        justifyContent: "space-between",
       }}
     >
-      <NavBar />
+      <Box sx={{ height: "6%" }}>
+        <NavBar />
+      </Box>
+
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          padding: "10px",
-          height: "100%",
+          padding: "8px",
+          height: "89%",
         }}
       >
         <MyChats />

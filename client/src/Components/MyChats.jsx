@@ -56,13 +56,14 @@ function MyChats() {
 
   return (
     <Box
+      clasName="child1"
       sx={{
         display: { lg: "flex", xs: selectedChat ? "none" : "flex" }, // to be improved
         flexDirection: "column",
         bgcolor: "white",
         padding: "8px",
         width: { xs: "100%", lg: "40%" },
-        height: "88vh",
+        height: "100%",
         borderRadius: "10px",
         borderWidth: "1px",
         boxSizing: "border-box",

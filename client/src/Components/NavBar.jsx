@@ -10,6 +10,7 @@ function NavBar() {
     <Box
       sx={{
         bgcolor: "white",
+        height: "100%",
         padding: "10px",
         display: "flex",
         justifyContent: "space-between",

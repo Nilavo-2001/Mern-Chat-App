@@ -3,6 +3,7 @@ import { MessageBox, SystemMessage } from "react-chat-elements";
 import { chatContext } from "../context/chatProvider";
 import ScrollableFeed from "react-scrollable-feed";
 import "../styles/chatScroll.css";
+//import { Box, Hidden } from "@mui/material";
 function ScrollChat({ messages, isTyping }) {
   const { user } = useContext(chatContext);
   return (
