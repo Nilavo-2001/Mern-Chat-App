@@ -66,7 +66,7 @@ function SingleChat() {
       };
       setLoading(true);
       const res = await fetch(
-        `/api/message/${selectedChat._id}`,
+        `http://localhost:5000/api/message/${selectedChat._id}`,
         requestOptions
       );
       const data = await res.json();
@@ -102,7 +102,10 @@ function SingleChat() {
         redirect: "follow",
       };
       setNewMessage("");
-      const res = await fetch("/api/message", requestOptions);
+      const res = await fetch(
+        "http://localhost:5000/api/message",
+        requestOptions
+      );
       const data = await res.json();
       console.log(data);
       setMessages([...messages, data]);
@@ -140,7 +143,10 @@ function SingleChat() {
         redirect: "follow",
       };
 
-      let res = await fetch("/api/message/update", requestOptions);
+      let res = await fetch(
+        "http://localhost:5000/api/message/update",
+        requestOptions
+      );
       let data = await res.json();
       console.log("update", data);
       setFetchAgain(!fetchAgain);

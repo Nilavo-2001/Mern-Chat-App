@@ -43,7 +43,7 @@ export default function ChatDrawer() {
       };
 
       const response = await fetch(
-        `/api/user/search?search=${searchQuery}`,
+        `http://localhost:5000/api/user/search?search=${searchQuery}`,
         requestOptions
       );
       const result = await response.json();
@@ -75,7 +75,10 @@ export default function ChatDrawer() {
         body: raw,
         redirect: "follow",
       };
-      let response = await fetch("/api/chat", requestOptions);
+      let response = await fetch(
+        "http://localhost:5000/api/chat",
+        requestOptions
+      );
       const result = await response.json();
       console.log(result);
       setSelectedChat(result);

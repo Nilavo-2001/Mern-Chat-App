@@ -31,7 +31,10 @@ function Login() {
         redirect: "follow",
       };
 
-      const response = await fetch("/api/user/auth/login", requestOptions);
+      const response = await fetch(
+        "http://localhost:5000/api/user/auth/login",
+        requestOptions
+      );
       const userData = await response.json();
       if (response.status === 200) {
         setLoading(false);

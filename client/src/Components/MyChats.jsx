@@ -30,7 +30,10 @@ function MyChats() {
         redirect: "follow",
       };
 
-      let reponse = await fetch("/api/chat", requestOptions);
+      let reponse = await fetch(
+        "http://localhost:5000/api/chat",
+        requestOptions
+      );
       let data = await reponse.json();
       console.log("chats", data);
       if (toLoad) setChatLoading(false);
