@@ -1,20 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { chatContext } from "../context/chatProvider";
 import { error as errorToast } from "../utils/toast";
-import {
-  Box,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  Skeleton,
-  Stack,
-} from "@mui/material";
+import { Box, List, ListItem, ListItemText, Skeleton } from "@mui/material";
 import { getSender, getSenderFull } from "../utils/chatLogics";
 import GroupModal from "../miscellanious/GroupModal";
 import { ChatItem } from "react-chat-elements";
 function MyChats() {
-  const [loggedUser, setLoggedUser] = useState();
   const [chatLoading, setChatLoading] = useState(false);
   const {
     selectedChat,
@@ -23,8 +14,6 @@ function MyChats() {
     chats,
     setChats,
     fetchAgain,
-    setFetchAgain,
-    notification,
     setNotification,
   } = useContext(chatContext);
 

@@ -19,15 +19,8 @@ export default function ChatDrawer() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [chatLoading, setChatLoading] = useState(false);
-  const {
-    user,
-    selectedChat,
-    chats,
-    setChats,
-    setSelectedChat,
-    setGlobalLoading,
-  } = useContext(chatContext);
+  const { user, chats, setChats, setSelectedChat, setGlobalLoading } =
+    useContext(chatContext);
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -55,7 +48,7 @@ export default function ChatDrawer() {
       );
       const result = await response.json();
       console.log(result);
-      if (result.length != 0) {
+      if (result.length !== 0) {
         setSearchResult(result);
       } else {
         setSearchResult([{ name: "No User Found" }]);
@@ -89,7 +82,7 @@ export default function ChatDrawer() {
       const result = await response.json();
       console.log(result);
       setSelectedChat(result);
-      if (!chats.find((chat) => chat._id == result._id))
+      if (!chats.find((chat) => chat._id === result._id))
         setChats([result, ...chats]);
       setGlobalLoading(false);
       setOpen(false);

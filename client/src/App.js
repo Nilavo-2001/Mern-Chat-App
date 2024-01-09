@@ -11,7 +11,7 @@ import { Backdrop, CircularProgress } from '@mui/material';
 //import { ChatState } from './context/chatProvider';
 
 function App() {
-  const { user, setUser, globalLoading } = useContext(chatContext);
+  const { user, globalLoading } = useContext(chatContext);
   return (
     <div className="App">
       <Backdrop

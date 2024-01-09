@@ -5,12 +5,31 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require("./config/db")
 const test = require("./middlewares/testDb");
+const path = require("path");
+
 dotenv.config();
 connectDB();
 app.use(cors());
 app.use(express.json());
 app.use('/api', require('./routes'));
-//app.use((req, res) => { res.send("URL NOT FOUND") });
+// --------------------------deployment------------------------------
+
+const __dirname1 = path.resolve();
+console.log("running on", process.env.SERVER_ENV);
+if (process.env.SERVER_ENV === "production") {
+    app.use(express.static(path.join(__dirname1, "/client/build")));
+
+    app.get("*", (req, res) =>
+        res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
+    );
+} else {
+    app.get("/", (req, res) => {
+        res.send("API is running..");
+    });
+}
+
+// --------------------------deployment------------------------------
+
 const PORT = process.env.PORT;
 const server = app.listen(PORT, (err) => {
     if (err) {

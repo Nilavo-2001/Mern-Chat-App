@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField } from "@mui/material";
@@ -12,7 +12,7 @@ function Login() {
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { user, setUser } = useContext(chatContext);
+  const { setUser } = useContext(chatContext);
   const loginUser = async (Email = email, Password = password) => {
     try {
       setLoading(true);
@@ -36,7 +36,7 @@ function Login() {
         requestOptions
       );
       const userData = await response.json();
-      if (response.status == 200) {
+      if (response.status === 200) {
         setLoading(false);
       } else {
         warning(userData);
