@@ -25,7 +25,7 @@ function NavBar() {
           fontSize: { xs: "1.8rem", sm: "2.125rem" },
         }}
       >
-        Chat-App
+        AnonyChat
       </Typography>
       <Box sx={{ display: "flex" }}>
         <NotificationMenu />
