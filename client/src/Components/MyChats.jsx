@@ -59,7 +59,7 @@ function MyChats() {
         bgcolor: "white",
         padding: "8px",
         width: { xs: "100%", lg: "40%" },
-        height: "88vh",
+        height: "100%",
         borderRadius: "10px",
         borderWidth: "1px",
         boxSizing: "border-box",

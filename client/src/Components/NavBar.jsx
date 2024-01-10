@@ -11,6 +11,7 @@ function NavBar() {
       sx={{
         bgcolor: "white",
         padding: "10px",
+        height: "100%",
         display: "flex",
         justifyContent: "space-between",
       }}
