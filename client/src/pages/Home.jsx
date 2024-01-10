@@ -25,7 +25,7 @@ function Home() {
         }}
       >
         <Typography fontSize={"2rem"} fontFamily={"work sans"}>
-          Chat-APP
+          AnonyChat
         </Typography>
       </Box>
       <Box
