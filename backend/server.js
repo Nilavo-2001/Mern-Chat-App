@@ -7,6 +7,7 @@ const connectDB = require("./config/db")
 const test = require("./middlewares/testDb");
 const path = require("path");
 const cron = require('node-cron');
+const RequestSelf = require("./utilities/requestSelf");
 
 dotenv.config();
 connectDB();
@@ -29,9 +30,7 @@ if (process.env.SERVER_ENV === "production") {
     });
 }
 
-cron.schedule("*/2 * * * *", function () {
-    console.log("running a task every 2 minutes");
-});
+cron.schedule("*/2 * * * *", RequestSelf);
 
 // --------------------------deployment------------------------------
 
