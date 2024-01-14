@@ -17,12 +17,14 @@ app.use('/api', require('./routes'));
 // --------------------------deployment------------------------------
 
 const __dirname1 = path.resolve();
-console.log("running on", process.env.SERVER_ENV);
+// console.log("running on", process.env.SERVER_ENV);
 if (process.env.SERVER_ENV === "production") {
     app.use(express.static(path.join(__dirname1, "/client/build")));
 
-    app.get("*", (req, res) =>
+    app.get("*", (req, res) => {
+        console.log("Incoming Req");
         res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
+    }
     );
 } else {
     app.get("/", (req, res) => {
