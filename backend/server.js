@@ -30,7 +30,7 @@ if (process.env.SERVER_ENV === "production") {
     });
 }
 
-cron.schedule("*/2 * * * *", RequestSelf);
+//cron.schedule("*/2 * * * *", RequestSelf);
 
 // --------------------------deployment------------------------------
 
