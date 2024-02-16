@@ -8,5 +8,5 @@ router.post("/group", protect, createGroupChat);//create a grp chat with given u
 router.put("/rename", protect, renameGrp); // rename a grp chat
 router.put("/groupremove", protect, removeFromGroup);
 router.put("/groupadd", protect, addToGroup);
-
+router.use("/anony", require('./anony'));
 module.exports = router;

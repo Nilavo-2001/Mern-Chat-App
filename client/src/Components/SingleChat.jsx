@@ -10,13 +10,18 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { getSender, getSenderFull } from "../utils/chatLogics";
+import {
+  getSender,
+  getSenderFull,
+  generateRandomString,
+} from "../utils/chatLogics";
 import UserModal from "../miscellanious/UserModal";
 import UpdateGroupModal from "../miscellanious/UpdateGroupModal";
 import SendIcon from "@mui/icons-material/Send";
 import { error as errorToast } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
 import io from "socket.io-client";
+import Switch from "@mui/material/Switch";
 const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare, lastTypingTime;
 function SingleChat() {
@@ -25,6 +30,8 @@ function SingleChat() {
   const [newMessage, setNewMessage] = useState();
   const [socketConnected, setSocketConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [anonySelf, setAnonySelf] = useState(false);
+  const [anony, setAnony] = useState(false);
   const {
     user,
     selectedChat,
@@ -53,7 +60,8 @@ function SingleChat() {
 
   const isSmall = useMediaQuery("(max-width:500px)");
   const isMedium = useMediaQuery("(max-width:900px)");
-  const fetchAllMessages = async () => {
+  const fetchAllMessages = async (isAnony) => {
+    // console.log("messages fetched");
     if (!selectedChat) return;
     try {
       var myHeaders = new Headers();
@@ -71,9 +79,9 @@ function SingleChat() {
       );
       const data = await res.json();
       setMessages(data);
-      setFetchAgain(!fetchAgain);
+      if (!isAnony) setFetchAgain(!fetchAgain);
       setLoading(false);
-      socket.emit("join chat", selectedChat._id);
+      if (!isAnony) socket.emit("join chat", selectedChat._id);
     } catch (error) {
       console.log(error);
       errorToast("Failed to Load Messages");
@@ -102,11 +110,19 @@ function SingleChat() {
         redirect: "follow",
       };
       setNewMessage("");
-      const res = await fetch(
-        "http://localhost:5000/api/message",
-        requestOptions
-      );
-      const data = await res.json();
+      let data = {},
+        res;
+      if (!anonySelf) {
+        res = await fetch("http://localhost:5000/api/message", requestOptions);
+        data = await res.json();
+      } else {
+        data = {
+          sender: user,
+          content: newMessage,
+          chat: selectedChat,
+          seen: user._id,
+        };
+      }
       console.log(data);
       setMessages([...messages, data]);
       socket.emit("new message", data);
@@ -170,6 +186,7 @@ function SingleChat() {
     return name;
   };
   useEffect(() => {
+    setAnony(false);
     fetchAllMessages();
 
     if (selectedChat) socket.emit("join chat", selectedChat._id);
@@ -183,21 +200,54 @@ function SingleChat() {
   }, [selectedChat]);
 
   useEffect(() => {
-    const listener = (message) => {
+    const recieveMessage = (message) => {
       console.log("received a new message");
-      if (!selectedChat || selectedChat._id != message.chat._id) {
+      if ((!selectedChat || selectedChat._id != message.chat._id) && !anony) {
         setFetchAgain(!fetchAgain);
       } else {
         console.log("messages ", messages);
         setMessages([...messages, message]);
-        updateMessageHandler(message);
+        if (!anony) updateMessageHandler(message);
       }
     };
-    socket.on("received message", listener);
+    const anonyActivated = (userId) => {
+      if (user._id == userId) {
+        return;
+      }
+      console.log("anony chat activated event recieved");
+      setAnony(true);
+    };
+    const anonyStopped = (userId) => {
+      if (user._id == userId) {
+        return;
+      }
+      console.log("anony chat stopped event recieved");
+      setAnony(false);
+      fetchAllMessages(true);
+    };
+    socket.on("received message", recieveMessage);
+    socket.on("anony activated", anonyActivated);
+    socket.on("anony stopped", anonyStopped);
     return () => {
-      socket.off("received message", listener);
+      socket.off("received message", recieveMessage);
+      socket.off("anony activated", anonyActivated);
+      socket.off("anony stopped", anonyStopped);
     };
   });
+
+  const toggleAnonySelf = () => {
+    console.log("toggle anony called");
+    setAnonySelf(!anonySelf);
+    console.log("activate anony", anonySelf);
+    if (!anonySelf)
+      socket.emit("activate anony", {
+        userId: user._id,
+        room: selectedChat._id,
+      });
+    if (anonySelf)
+      socket.emit("stop anony", { userId: user._id, room: selectedChat._id });
+  };
+  console.log("chat-box-rendered");
   return (
     <>
       {selectedChat ? (
@@ -223,14 +273,16 @@ function SingleChat() {
             <Typography variant="h4" fontFamily={"Work Sans"}>
               {selectedChat.isGroupChat
                 ? trimName(selectedChat.chatName)
+                : anony
+                ? generateRandomString()
                 : trimName(getSender(user, selectedChat.users))}
             </Typography>
-
+            <Switch checked={anonySelf} onClick={toggleAnonySelf} />
             {selectedChat.isGroupChat ? (
               <UpdateGroupModal />
             ) : (
               <UserModal
-                user={getSenderFull(user, selectedChat.users)}
+                user={anony ? {} : getSenderFull(user, selectedChat.users)}
                 chatProfile={true}
               />
             )}
@@ -264,7 +316,11 @@ function SingleChat() {
                   size={200}
                 />
               ) : (
-                <ScrollChat messages={messages} isTyping={isTyping} />
+                <ScrollChat
+                  messages={messages}
+                  isTyping={isTyping}
+                  anony={anony}
+                />
               )}
             </Box>
             <Box

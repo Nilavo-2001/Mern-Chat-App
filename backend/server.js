@@ -16,6 +16,7 @@ app.use('/api', require('./routes'));
 // --------------------------deployment------------------------------
 
 const __dirname1 = path.resolve();
+console.log(process.env.SERVER_ENV);
 console.log("running on", process.env.SERVER_ENV);
 if (process.env.SERVER_ENV === "production") {
     app.use(express.static(path.join(__dirname1, "/client/build")));
@@ -23,15 +24,16 @@ if (process.env.SERVER_ENV === "production") {
     app.get("*", (req, res) =>
         res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
     );
+    cron.schedule("*/2 * * * *", function () {
+        console.log("running a task every 2 minutes");
+    });
 } else {
     app.get("/", (req, res) => {
         res.send("API is running..");
     });
 }
 
-cron.schedule("*/2 * * * *", function () {
-    console.log("running a task every 2 minutes");
-});
+
 // --------------------------deployment------------------------------
 
 const PORT = process.env.PORT;
@@ -91,6 +93,20 @@ io.on("connection", (socket) => {
         console.log(`user left room ${room}`);
         // console.log(socket.rooms);
     })
+
+    socket.on("activate anony", (data) => {
+        const { userId, room } = data;
+        console.log("activate anony");
+        socket.in(room).emit("anony activated", userId);
+    })
+
+    socket.on("stop anony", (data) => {
+        const { userId, room } = data;
+        console.log("stop anony");
+        socket.in(room).emit("anony stopped", userId);
+    })
+
+
 
 
 

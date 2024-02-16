@@ -8,5 +8,11 @@ const getSenderFull = (loggedUser, users) => {
     return (users[0]._id == loggedUser._id) ? (users[1]) : (users[0]);
 }
 
+const generateRandomString = () => {
+    return Math.random().toString(36).substring(2, 11);
+};
 
-export { getSender, getSenderFull }
+
+
+
+export { getSender, getSenderFull, generateRandomString }
