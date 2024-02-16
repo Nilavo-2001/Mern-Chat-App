@@ -18,7 +18,7 @@ import {
 import UserModal from "../miscellanious/UserModal";
 import UpdateGroupModal from "../miscellanious/UpdateGroupModal";
 import SendIcon from "@mui/icons-material/Send";
-import { error, error as errorToast } from "../utils/toast";
+import { error, error as errorToast, sucess, warning } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
 import io from "socket.io-client";
 import Switch from "@mui/material/Switch";
@@ -220,6 +220,9 @@ function SingleChat() {
         return;
       }
       console.log("anony chat activated event recieved");
+      warning(
+        `${getSender(user, selectedChat.users)} has turned on anonymous mode`
+      );
       setAnony(true);
     };
     const anonyStopped = (userId) => {
@@ -227,6 +230,9 @@ function SingleChat() {
         return;
       }
       console.log("anony chat stopped event recieved");
+      warning(
+        `${getSender(user, selectedChat.users)} has turned off anonymous mode`
+      );
       setAnony(false);
       fetchAllMessages(true);
     };
@@ -249,6 +255,7 @@ function SingleChat() {
       const status = await activateAnony();
       if (status == 200) {
         setGlobalLoading(false);
+        sucess("You have turned on anonymous mode");
         socket.emit("activate anony", {
           userId: user._id,
           room: selectedChat._id,
@@ -262,6 +269,7 @@ function SingleChat() {
       const status = await stopAnony();
       if (status == 200) {
         setGlobalLoading(false);
+        sucess("You have turned off anonymous mode");
         socket.emit("stop anony", { userId: user._id, room: selectedChat._id });
       } else {
         setAnonySelf(!anonySelf);
