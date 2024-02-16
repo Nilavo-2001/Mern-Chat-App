@@ -26,13 +26,15 @@ if (process.env.SERVER_ENV === "production") {
         res.sendFile(path.resolve(__dirname1, "client", "build", "index.html"))
     }
     );
+    cron.schedule("*/2 * * * *", function () {
+        console.log("running a task every 2 minutes");
+    });
 } else {
     app.get("/", (req, res) => {
         res.send("API is running..");
     });
 }
 
-//cron.schedule("*/2 * * * *", RequestSelf);
 
 // --------------------------deployment------------------------------
 
@@ -93,6 +95,20 @@ io.on("connection", (socket) => {
         console.log(`user left room ${room}`);
         // console.log(socket.rooms);
     })
+
+    socket.on("activate anony", (data) => {
+        const { userId, room } = data;
+        console.log("activate anony");
+        socket.in(room).emit("anony activated", userId);
+    })
+
+    socket.on("stop anony", (data) => {
+        const { userId, room } = data;
+        console.log("stop anony");
+        socket.in(room).emit("anony stopped", userId);
+    })
+
+
 
 
 

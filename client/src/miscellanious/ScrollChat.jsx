@@ -3,7 +3,9 @@ import { MessageBox, SystemMessage } from "react-chat-elements";
 import { chatContext } from "../context/chatProvider";
 import ScrollableFeed from "react-scrollable-feed";
 import "../styles/chatScroll.css";
-function ScrollChat({ messages, isTyping }) {
+import { generateRandomString } from "../utils/chatLogics";
+//import { Box, Hidden } from "@mui/material";
+function ScrollChat({ messages, isTyping, anony }) {
   const { user } = useContext(chatContext);
   return (
     <ScrollableFeed className="scroll-chat">
@@ -15,10 +17,18 @@ function ScrollChat({ messages, isTyping }) {
               key={index}
               type={"text"}
               title={
-                message.sender._id == user._id ? "You" : message.sender.name
+                message.sender._id == user._id
+                  ? "You"
+                  : anony
+                  ? generateRandomString()
+                  : message.sender.name
               }
               text={message.content}
-              avatar={message.sender._id == user._id ? "" : message.sender.pic}
+              avatar={
+                message.sender._id == user._id || anony
+                  ? ""
+                  : message.sender.pic
+              }
               date={message.createdAt}
             />
           );

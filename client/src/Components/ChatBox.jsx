@@ -7,6 +7,7 @@ function ChatBox() {
   const { selectedChat } = useContext(chatContext);
   return (
     <Box
+      className="child2"
       sx={{
         display: { lg: "flex", xs: selectedChat ? "flex" : "none" },
         flexDirection: "column",
