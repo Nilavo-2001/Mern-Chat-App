@@ -32,8 +32,8 @@ const removeAnony = expressAsyncHandler(async (req, res) => {
 })
 
 const checkAnony = expressAsyncHandler(async (req, res) => {
-    const { chatId, userId } = req.body;
-    if (!chatId || !userId) {
+    const { chatId } = req.params;
+    if (!chatId) {
         return res.status(400).send("chat id and user id needed");
     }
     const chat = await Chat.findById(chatId);

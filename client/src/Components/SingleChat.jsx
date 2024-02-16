@@ -18,7 +18,7 @@ import {
 import UserModal from "../miscellanious/UserModal";
 import UpdateGroupModal from "../miscellanious/UpdateGroupModal";
 import SendIcon from "@mui/icons-material/Send";
-import { error as errorToast } from "../utils/toast";
+import { error, error as errorToast } from "../utils/toast";
 import ScrollChat from "../miscellanious/ScrollChat";
 import io from "socket.io-client";
 import Switch from "@mui/material/Switch";
@@ -40,6 +40,7 @@ function SingleChat() {
     setNotification,
     fetchAgain,
     setFetchAgain,
+    setGlobalLoading,
   } = useContext(chatContext);
 
   useEffect(() => {
@@ -174,22 +175,29 @@ function SingleChat() {
   const trimName = (name) => {
     let maxChar = 15;
     if (isSmall) {
-      maxChar = 12;
+      if (selectedChat.isGroupChat) maxChar = 12;
+      else maxChar = 5;
     } else if (isMedium) {
       maxChar = 30;
     } else {
       maxChar = 50;
     }
     if (name.length > maxChar) {
-      return name.substring(0, 8) + "..";
+      if (isSmall && !selectedChat.isGroupChat)
+        return name.substring(0, 3) + "..";
+      else return name.substring(0, 8) + "..";
     }
     return name;
   };
   useEffect(() => {
     setAnony(false);
+    setAnonySelf(false);
     fetchAllMessages();
-
-    if (selectedChat) socket.emit("join chat", selectedChat._id);
+    if (selectedChat) {
+      console.log("called");
+      socket.emit("join chat", selectedChat._id);
+      checkAnony();
+    }
     return () => {
       if (selectedChat) {
         socket.emit("stop typing", selectedChat._id);
@@ -235,19 +243,121 @@ function SingleChat() {
     };
   });
 
-  const toggleAnonySelf = () => {
+  const toggleAnonySelf = async () => {
     console.log("toggle anony called");
     setAnonySelf(!anonySelf);
     console.log("activate anony", anonySelf);
-    if (!anonySelf)
-      socket.emit("activate anony", {
-        userId: user._id,
-        room: selectedChat._id,
-      });
-    if (anonySelf)
-      socket.emit("stop anony", { userId: user._id, room: selectedChat._id });
+    if (!anonySelf) {
+      setGlobalLoading(true);
+      const status = await activateAnony();
+      if (status == 200) {
+        setGlobalLoading(false);
+        socket.emit("activate anony", {
+          userId: user._id,
+          room: selectedChat._id,
+        });
+      } else {
+        setAnonySelf(!anonySelf);
+      }
+    }
+    if (anonySelf) {
+      setGlobalLoading(true);
+      const status = await stopAnony();
+      if (status == 200) {
+        setGlobalLoading(false);
+        socket.emit("stop anony", { userId: user._id, room: selectedChat._id });
+      } else {
+        setAnonySelf(!anonySelf);
+      }
+    }
   };
-  console.log("chat-box-rendered");
+
+  const activateAnony = async () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      const raw = JSON.stringify({
+        chatId: `${selectedChat._id}`,
+        userId: `${user._id}`,
+      });
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      const res = await fetch(
+        "http://localhost:5000/api/chat/anony/add",
+        requestOptions
+      );
+      return res.status;
+    } catch (err) {
+      error("failed to turn on anony");
+    }
+  };
+  const stopAnony = async () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+      const raw = JSON.stringify({
+        chatId: `${selectedChat._id}`,
+        userId: `${user._id}`,
+      });
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      const res = await fetch(
+        "http://localhost:5000/api/chat/anony/remove",
+        requestOptions
+      );
+      return res.status;
+    } catch (err) {
+      error("failed to turn off anony");
+    }
+  };
+  const checkAnony = async () => {
+    console.log("called check");
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${user.token}`);
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    const res = await fetch(
+      `http://localhost:5000/api/chat/anony/check/${selectedChat._id}`,
+      requestOptions
+    );
+    const data = await res.json();
+    console.log("data ", data);
+    if (data.anony.length == 2) {
+      setAnony(true);
+      setAnonySelf(true);
+    } else if (data.anony.length == 1) {
+      const userId = data.anony[0];
+      console.log(userId, user._id);
+      if (userId == user._id) {
+        setAnonySelf(true);
+      } else {
+        setAnony(true);
+      }
+    }
+  };
+
   return (
     <>
       {selectedChat ? (
@@ -270,6 +380,7 @@ function SingleChat() {
             >
               <ArrowBackIcon />
             </Button>
+
             <Typography variant="h4" fontFamily={"Work Sans"}>
               {selectedChat.isGroupChat
                 ? trimName(selectedChat.chatName)
@@ -277,7 +388,11 @@ function SingleChat() {
                 ? generateRandomString()
                 : trimName(getSender(user, selectedChat.users))}
             </Typography>
-            <Switch checked={anonySelf} onClick={toggleAnonySelf} />
+            {selectedChat.isGroupChat ? (
+              ""
+            ) : (
+              <Switch checked={anonySelf} onClick={toggleAnonySelf} />
+            )}
             {selectedChat.isGroupChat ? (
               <UpdateGroupModal />
             ) : (

@@ -3,7 +3,7 @@ const { checkAnony, addAnony, removeAnony } = require('../controllers/anonyContr
 const { protect } = require('../middlewares/authUser');
 const router = express.Router();
 
-router.get('/check', protect, checkAnony);
+router.get('/check/:chatId', protect, checkAnony);
 router.post('/add', protect, addAnony);
 router.post('/remove', protect, removeAnony);
 
