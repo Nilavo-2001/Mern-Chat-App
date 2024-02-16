@@ -9,7 +9,7 @@ const getSenderFull = (loggedUser, users) => {
 }
 
 const generateRandomString = () => {
-    return Math.random().toString(36).substring(2, 11);
+    return Math.random().toString(36).substring(2, 8);
 };
 
 
