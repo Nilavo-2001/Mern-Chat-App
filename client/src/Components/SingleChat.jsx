@@ -212,17 +212,15 @@ function SingleChat() {
       } else {
         console.log("messages ", messages);
         setMessages([...messages, message]);
-        if (!anony) updateMessageHandler(message);
+        if (!anony) updateMessageHandler(message); //this is how message seen is updated
       }
     };
     const anonyActivated = (userId) => {
       if (user._id == userId) {
         return;
-      }
+      } //this to check that the current user is not the user who has turned on anony mode
       console.log("anony chat activated event recieved");
-      warning(
-        `${getSender(user, selectedChat.users)} has turned on anonymous mode`
-      );
+      warning(`The user you are chatting with has turned on anonymous mode`);
       setAnony(true);
     };
     const anonyStopped = (userId) => {
@@ -300,7 +298,7 @@ function SingleChat() {
     } catch (err) {
       error("failed to turn on anony");
     }
-  };
+  }; //this is implemented to add the user in anony array of chat
   const stopAnony = async () => {
     try {
       const myHeaders = new Headers();
@@ -324,7 +322,7 @@ function SingleChat() {
     } catch (err) {
       error("failed to turn off anony");
     }
-  };
+  }; //this is implemented to remove the user in anony array of chat
   const checkAnony = async () => {
     console.log("called check");
     const myHeaders = new Headers();
@@ -344,9 +342,11 @@ function SingleChat() {
     const data = await res.json();
     console.log("data ", data);
     if (data.anony.length == 2) {
+      //when both the users have turned on anony mode
       setAnony(true);
       setAnonySelf(true);
     } else if (data.anony.length == 1) {
+      //when only one user has turned on anony mode
       const userId = data.anony[0];
       console.log(userId, user._id);
       if (userId == user._id) {
