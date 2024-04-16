@@ -228,9 +228,7 @@ function SingleChat() {
         return;
       }
       console.log("anony chat stopped event recieved");
-      warning(
-        `${getSender(user, selectedChat.users)} has turned off anonymous mode`
-      );
+      warning(`The user you are chatting with has turned off anonymous mode`);
       setAnony(false);
       fetchAllMessages(true);
     };
